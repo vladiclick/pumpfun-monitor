@@ -1,0 +1,681 @@
+/* ==========================================================================
+   PUMP MONITOR — sistem de design
+   Directie vizuala: Phantom Wallet. Curat, prietenos, citibil dintr-o privire.
+   Reguli:
+     - UN accent: violet. Rosul apare DOAR pe insigna de respingere.
+     - Carduri cu colturi rotunjite si spatiere generoasa, nu tabele dense.
+     - Mono NUMAI pe adrese si semnaturi. Restul, font de sistem.
+     - Umbre discrete, fara glow, fara animatii decorative.
+   ========================================================================== */
+
+:root {
+  /* Suprafete — negru cu tenta violeta, ca in Phantom */
+  --bg: #16151c;
+  --surface: #1f1e29;
+  --surface-hover: #272534;
+  --surface-sunken: #1a1922;
+
+  /* Linii si separatoare */
+  --border: rgba(255, 255, 255, 0.07);
+  --border-strong: rgba(255, 255, 255, 0.12);
+
+  /* Text */
+  --fg: #ffffff;
+  --fg-muted: rgba(255, 255, 255, 0.58);
+  --fg-faint: rgba(255, 255, 255, 0.36);
+
+  /* Accent unic */
+  --accent: #ab9ff2;
+  --accent-strong: #8b7ae8;
+  --accent-wash: rgba(171, 159, 242, 0.14);
+  --accent-line: rgba(171, 159, 242, 0.3);
+
+  /* Singura culoare semantica in afara accentului: respingerea. */
+  --danger: #ff8085;
+  --danger-wash: rgba(255, 128, 133, 0.13);
+
+  /* Neutru pentru starile "nu stim" (in asteptare / nedecis) */
+  --neutral-wash: rgba(255, 255, 255, 0.07);
+
+  --radius-lg: 18px;
+  --radius: 14px;
+  --radius-sm: 10px;
+  --radius-pill: 999px;
+
+  --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 4px 14px rgba(0, 0, 0, 0.18);
+
+  --sans: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", Roboto,
+          "Helvetica Neue", sans-serif;
+  --mono: ui-monospace, "SF Mono", "JetBrains Mono", Menlo, Consolas, monospace;
+
+  --topbar-h: 60px;
+  --gutter: 16px;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html, body, #root { height: 100%; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--sans);
+  font-size: 15px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+button, input { font: inherit; color: inherit; }
+
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border: 3px solid var(--bg);
+  border-radius: var(--radius-pill);
+}
+::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.18); }
+
+/* Mono doar unde chiar trebuie: adrese, mint-uri, semnaturi. */
+.mono {
+  font-family: var(--mono);
+  font-size: 0.92em;
+  letter-spacing: -0.01em;
+}
+
+/* ==========================================================================
+   Structura
+   ========================================================================== */
+
+.app { display: flex; flex-direction: column; height: 100%; min-height: 0; }
+
+/* --- Bara de sus --- */
+.topbar {
+  flex: 0 0 auto;
+  height: var(--topbar-h);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0 var(--gutter);
+  background: var(--bg);
+  border-bottom: 1px solid var(--border);
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  font-size: 16px;
+  font-weight: 650;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+}
+.brand-mark {
+  width: 28px;
+  height: 28px;
+  flex: 0 0 auto;
+  border-radius: 9px;
+  background: linear-gradient(150deg, var(--accent) 0%, var(--accent-strong) 100%);
+}
+.brand-sub {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--fg-faint);
+}
+
+.topbar-spacer { flex: 1 1 auto; }
+
+/* Pastila de conexiune */
+.conn-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  height: 34px;
+  padding: 0 13px;
+  border-radius: var(--radius-pill);
+  background: var(--surface);
+  font-size: 13px;
+  font-weight: 550;
+  color: var(--fg-muted);
+  white-space: nowrap;
+}
+.conn-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--fg-faint);
+  flex: 0 0 auto;
+}
+.conn-dot.on { background: var(--accent); }
+.conn-dot.off { background: var(--danger); }
+.conn-dot.wait { background: var(--fg-muted); }
+
+.sidebar-toggle {
+  display: none;                /* apare doar pe ecran ingust */
+  height: 34px;
+  padding: 0 14px;
+  border: 0;
+  border-radius: var(--radius-pill);
+  background: var(--surface);
+  color: var(--fg-muted);
+  font-size: 13px;
+  font-weight: 550;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.sidebar-toggle:hover { background: var(--surface-hover); color: var(--fg); }
+.sidebar-toggle.active { background: var(--accent-wash); color: var(--accent); }
+
+/* --- Banda de sumar --- */
+.summary {
+  flex: 0 0 auto;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+  padding: 14px var(--gutter);
+}
+
+.summary-item {
+  background: var(--surface);
+  border-radius: var(--radius);
+  padding: 13px 15px;
+  min-width: 0;
+}
+.summary-label {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--fg-faint);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.summary-value {
+  margin-top: 3px;
+  font-size: 23px;
+  font-weight: 650;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+}
+.summary-value.accent { color: var(--accent); }
+
+/* --- Corp --- */
+.body {
+  flex: 1 1 auto;
+  display: grid;
+  grid-template-columns: 320px minmax(0, 1fr);
+  gap: 10px;
+  padding: 0 var(--gutter) var(--gutter);
+  min-height: 0;
+}
+
+.panel {
+  min-height: 0;
+  overflow-y: auto;
+  padding-right: 2px;
+}
+
+.panel-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 4px 10px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--fg-faint);
+}
+.panel-title .count {
+  margin-left: auto;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ==========================================================================
+   Instante — carduri simple, fara aglomerare de cifre
+   ========================================================================== */
+
+.instance-card {
+  display: block;
+  width: 100%;
+  text-align: left;
+  background: var(--surface);
+  border: 1px solid transparent;
+  border-radius: var(--radius);
+  padding: 14px 15px;
+  margin-bottom: 10px;
+  cursor: pointer;
+}
+.instance-card:hover { background: var(--surface-hover); }
+.instance-card.selected {
+  border-color: var(--accent-line);
+  background: var(--surface-hover);
+}
+
+.instance-head { display: flex; align-items: center; gap: 9px; }
+
+.instance-name {
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.instance-state {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 26px;
+  padding: 0 11px;
+  border-radius: var(--radius-pill);
+  background: var(--neutral-wash);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--fg-muted);
+  white-space: nowrap;
+}
+.instance-state.on { background: var(--accent-wash); color: var(--accent); }
+.instance-state.off { background: var(--danger-wash); color: var(--danger); }
+
+.instance-meta {
+  margin-top: 6px;
+  font-size: 13px;
+  color: var(--fg-faint);
+}
+
+.instance-actions { display: flex; gap: 8px; margin-top: 13px; }
+
+.btn {
+  flex: 1 1 auto;
+  height: 38px;
+  padding: 0 14px;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: var(--neutral-wash);
+  color: var(--fg-muted);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.btn:hover:not(:disabled) { background: rgba(255, 255, 255, 0.12); color: var(--fg); }
+.btn:disabled { opacity: 0.35; cursor: not-allowed; }
+.btn-primary { background: var(--accent); color: #201d33; }
+.btn-primary:hover:not(:disabled) { background: var(--accent-strong); color: #fff; }
+
+.instance-error {
+  margin-top: 11px;
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  background: var(--danger-wash);
+  color: var(--danger);
+  font-size: 13px;
+  line-height: 1.45;
+  word-break: break-word;
+}
+
+/* ==========================================================================
+   Feed — un card per token
+   ========================================================================== */
+
+.feed { display: flex; flex-direction: column; min-height: 0; min-width: 0; }
+
+.feed-toolbar {
+  flex: 0 0 auto;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 0 12px;
+}
+
+.chip {
+  height: 34px;
+  padding: 0 15px;
+  border: 0;
+  border-radius: var(--radius-pill);
+  background: var(--surface);
+  color: var(--fg-muted);
+  font-size: 13px;
+  font-weight: 550;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.chip:hover { background: var(--surface-hover); color: var(--fg); }
+.chip-active { background: var(--accent); color: #201d33; }
+.chip-active:hover { background: var(--accent-strong); color: #fff; }
+
+.search-input {
+  flex: 1 1 200px;
+  min-width: 160px;
+  height: 34px;
+  padding: 0 15px;
+  border: 1px solid transparent;
+  border-radius: var(--radius-pill);
+  background: var(--surface);
+  color: var(--fg);
+  font-size: 14px;
+}
+.search-input::placeholder { color: var(--fg-faint); }
+.search-input:focus { outline: none; border-color: var(--accent-line); }
+
+.cards {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding-right: 2px;
+}
+
+/* --- Cardul de token --- */
+.token-card {
+  display: block;
+  width: 100%;
+  text-align: left;
+  background: var(--surface);
+  border: 1px solid transparent;
+  border-radius: var(--radius-lg);
+  padding: 16px 18px;
+  cursor: pointer;
+  box-shadow: var(--shadow);
+}
+.token-card:hover { background: var(--surface-hover); }
+.token-card.selected { border-color: var(--accent-line); }
+.token-card.fresh { border-color: var(--accent-line); }
+
+.token-card-main {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+}
+
+.token-identity { min-width: 0; flex: 1 1 auto; }
+
+.token-symbol {
+  font-size: 19px;
+  font-weight: 680;
+  letter-spacing: -0.02em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.token-name {
+  margin-top: 2px;
+  font-size: 14px;
+  color: var(--fg-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Insigna de verdict — elementul cel mai vizibil din card */
+.verdict-badge {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  height: 34px;
+  padding: 0 16px;
+  border-radius: var(--radius-pill);
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+  background: var(--neutral-wash);
+  color: var(--fg-muted);
+}
+.verdict-badge.pass { background: var(--accent-wash); color: var(--accent); }
+.verdict-badge.reject { background: var(--danger-wash); color: var(--danger); }
+
+/* Nota care explica verdictul in cuvinte simple */
+.verdict-note {
+  margin-top: 10px;
+  font-size: 13px;
+  line-height: 1.45;
+  color: var(--fg-muted);
+}
+
+.token-mint {
+  margin-top: 12px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 11px;
+  border-radius: var(--radius-pill);
+  background: var(--surface-sunken);
+  font-family: var(--mono);
+  font-size: 12.5px;
+  color: var(--fg-faint);
+}
+
+.token-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  margin-top: 13px;
+  padding-top: 13px;
+  border-top: 1px solid var(--border);
+}
+.stat { min-width: 0; }
+.stat-label { font-size: 12px; color: var(--fg-faint); }
+.stat-value {
+  margin-top: 1px;
+  font-size: 15px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.token-card-foot {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 12px;
+  font-size: 12.5px;
+  color: var(--fg-faint);
+}
+.token-bot {
+  padding: 3px 10px;
+  border-radius: var(--radius-pill);
+  background: var(--surface-sunken);
+  font-weight: 550;
+}
+.token-time { margin-left: auto; font-variant-numeric: tabular-nums; }
+
+/* --- Stare goala --- */
+.empty-state {
+  margin: auto;
+  padding: 48px 24px;
+  text-align: center;
+  max-width: 380px;
+}
+.empty-title { font-size: 16px; font-weight: 600; }
+.empty-text { margin-top: 6px; font-size: 14px; color: var(--fg-muted); }
+
+/* ==========================================================================
+   Foaia de detalii
+   ========================================================================== */
+
+.detail-sheet {
+  flex: 0 0 auto;
+  max-height: 46%;
+  overflow-y: auto;
+  margin-top: 10px;
+  background: var(--surface);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow);
+}
+
+.detail-head {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 18px 12px;
+  background: var(--surface);
+}
+.detail-title {
+  font-size: 17px;
+  font-weight: 650;
+  letter-spacing: -0.01em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.detail-close {
+  margin-left: auto;
+  width: 34px;
+  height: 34px;
+  flex: 0 0 auto;
+  border: 0;
+  border-radius: 50%;
+  background: var(--neutral-wash);
+  color: var(--fg-muted);
+  font-size: 17px;
+  line-height: 1;
+  cursor: pointer;
+}
+.detail-close:hover { background: rgba(255, 255, 255, 0.13); color: var(--fg); }
+
+.detail-sections {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 10px;
+  padding: 0 18px 18px;
+}
+
+.detail-section {
+  background: var(--surface-sunken);
+  border-radius: var(--radius);
+  padding: 14px 15px;
+}
+.detail-section-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--fg-faint);
+  margin-bottom: 9px;
+}
+
+.kv-row {
+  display: flex;
+  gap: 12px;
+  padding: 4px 0;
+  font-size: 14px;
+  align-items: baseline;
+}
+.kv-key { flex: 0 0 96px; color: var(--fg-faint); font-size: 13px; }
+.kv-value {
+  min-width: 0;
+  flex: 1 1 auto;
+  word-break: break-word;
+  color: var(--fg);
+}
+.kv-value.mono { font-family: var(--mono); font-size: 12.5px; }
+.kv-value.good { color: var(--accent); }
+.kv-value.bad { color: var(--danger); }
+
+.copy-btn {
+  margin-left: 8px;
+  padding: 3px 9px;
+  border: 0;
+  border-radius: var(--radius-pill);
+  background: var(--neutral-wash);
+  color: var(--fg-muted);
+  font-size: 12px;
+  font-weight: 550;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.copy-btn:hover { background: var(--accent-wash); color: var(--accent); }
+
+.link-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+.link-chip {
+  height: 32px;
+  display: inline-flex;
+  align-items: center;
+  padding: 0 13px;
+  border-radius: var(--radius-pill);
+  background: var(--neutral-wash);
+  color: var(--fg-muted);
+  font-size: 13px;
+  font-weight: 550;
+  text-decoration: none;
+}
+.link-chip:hover { background: var(--accent-wash); color: var(--accent); }
+
+/* ==========================================================================
+   Responsive — telefon
+   ========================================================================== */
+
+@media (max-width: 1000px) {
+  .body { grid-template-columns: 1fr; grid-template-rows: auto minmax(0, 1fr); }
+  .panel { max-height: 34vh; }
+  .app.sidebar-collapsed .panel { display: none; }
+  .sidebar-toggle { display: inline-flex; align-items: center; }
+  .summary { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-width: 640px) {
+  :root { --gutter: 12px; }
+  body { font-size: 14.5px; }
+
+  .topbar { gap: 8px; }
+  .brand-sub { display: none; }
+  /* Cuvantul de stare nu incape langa titlu si butonul de instante;
+     punctul colorat spune acelasi lucru, iar textul ramane in tooltip. */
+  .conn-text { display: none; }
+  .conn-pill { width: 42px; padding: 0; justify-content: center; }
+
+  /* Sumarul pe UN singur rand: pe un ecran de 700px inaltime, doua randuri
+     de placi mancau 158px si nu mai ramanea loc pentru carduri. */
+  .summary {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 6px;
+    padding: 10px var(--gutter);
+  }
+  .summary-item { padding: 8px 9px; }
+  .summary-label { font-size: 10.5px; line-height: 1.25; white-space: normal; }
+  .summary-value { font-size: 17px; margin-top: 2px; }
+
+  /* Filtrele: mai stranse, ca sa incapa pe doua randuri scurte. */
+  .chip { padding: 0 12px; font-size: 12.5px; }
+  .feed-toolbar { gap: 6px; padding: 0 0 8px; }
+  .cards { gap: 8px; }
+
+  /* Cardurile raman aerisite, dar incap mai multe pe ecran. */
+  .token-card { padding: 14px 15px; border-radius: var(--radius); }
+  .token-symbol { font-size: 17px; }
+  .token-name { font-size: 13.5px; }
+  .verdict-note { margin-top: 8px; font-size: 12.5px; }
+  .token-mint { margin-top: 9px; }
+  .token-stats { gap: 16px; margin-top: 10px; padding-top: 10px; }
+  .stat-value { font-size: 14px; }
+  .token-card-foot { margin-top: 9px; }
+
+  /* Foaia de detalii nu mai fura din inaltimea feed-ului. */
+  .detail-sheet {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 30;
+    margin: 0;
+    max-height: 62vh;
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  }
+  .detail-sections { grid-template-columns: 1fr; }
+  .kv-key { flex-basis: 84px; }
+
+  /* Tinte de atingere confortabile pe telefon. */
+  .btn, .chip, .search-input, .sidebar-toggle, .conn-pill { height: 42px; }
+  .detail-close { width: 42px; height: 42px; }
+  .verdict-badge { height: 32px; }
+  .copy-btn { padding: 8px 12px; }
+  .link-chip { height: 38px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { animation: none !important; transition: none !important; }
+}

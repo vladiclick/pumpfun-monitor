@@ -1,0 +1,20 @@
+{
+  "bot_id": "strict",
+  "label": "Strict — doar token-uri curate",
+  "require_mint_authority_revoked": true,
+  "require_freeze_authority_revoked": true,
+  "check_liquidity": true,
+  "min_liquidity_usd": 5000,
+  "liquidity_wait_seconds": 30,
+  "liquidity_poll_interval": 5,
+  "allow_missing_liquidity": false,
+  "check_rugcheck": true,
+  "max_rugcheck_score": 1500,
+  "rugcheck_fail_open": false,
+  "max_concurrent_checks": 24,
+  "rpc_min_interval": 0.5,
+  "notes": "Prag ridicat de lichiditate, RugCheck fail-closed. Asteapta pana la 20s ca RugCheck sa indexeze tokenul - altfel a doua opinie nu are ce spune despre o lansare de cateva secunde.",
+  "rugcheck_wait_seconds": 20,
+  "rugcheck_poll_interval": 4,
+  "telegram_notify": false
+}

@@ -1,0 +1,23 @@
+{
+  "bot_id": "devreme",
+  "label": "Devreme — lansari proaspete, risc mare",
+  "require_mint_authority_revoked": true,
+  "require_freeze_authority_revoked": true,
+  "check_liquidity": false,
+  "check_rugcheck": false,
+  "heat_watch_seconds": 900,
+  "heat_poll_interval": 30,
+  "heat_max_watched": 900,
+  "trade_window_seconds": 30,
+  "min_market_cap_usd": 9000,
+  "max_market_cap_usd": 0,
+  "min_price_change_m5_pct": 25,
+  "min_buys_m5": 14,
+  "min_buy_sell_ratio_m5": 1.3,
+  "min_volume_m5_usd": 900,
+  "min_volume_h1_usd": 0,
+  "max_concurrent_checks": 32,
+  "rpc_min_interval": 0.5,
+  "telegram_notify": true,
+  "notes": "Alerte foarte devreme, risc mare. Detectie din tranzactiile citite live din loguri, fereastra de 30 de secunde. Calibrat pe rata masurata: la pragurile initiale dadea 5.1 alerte/minut, stranse pana la 2.0/minut. Astea NU sunt monede verificate - sunt lansari care tocmai se misca."
+}

@@ -1,0 +1,12 @@
+{
+  "bot_id": "rapid",
+  "label": "Rapid — verdict in sub o secunda",
+  "require_mint_authority_revoked": true,
+  "require_freeze_authority_revoked": true,
+  "check_liquidity": false,
+  "check_rugcheck": false,
+  "max_concurrent_checks": 32,
+  "rpc_min_interval": 0.5,
+  "notes": "Doar filtrul on-chain de autoritati. Latenta minima, fara API-uri externe.",
+  "telegram_notify": false
+}

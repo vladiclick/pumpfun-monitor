@@ -1,0 +1,15 @@
+# Toate dependentele sunt open-source / gratuite. Niciuna nu cere card.
+fastapi==0.115.6
+uvicorn[standard]==0.34.0
+httpx==0.28.1
+websockets>=14,<18
+aiosqlite==0.20.0
+python-dotenv==1.0.1
+base58==2.1.1
+pydantic==2.10.4
+
+# Optionale: `solders` e folosit pentru validarea rapida a adreselor Solana,
+# iar `solana` (solana-py) pentru compatibilitate cu ecosistemul.
+# Codul are fallback pur-python si merge si fara ele - vezi bot/solana_util.py.
+solders>=0.23
+solana>=0.36,<0.41

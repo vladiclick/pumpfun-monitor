@@ -1,0 +1,20 @@
+{
+  "bot_id": "echilibrat",
+  "label": "Echilibrat",
+  "require_mint_authority_revoked": true,
+  "require_freeze_authority_revoked": true,
+  "check_liquidity": true,
+  "min_liquidity_usd": 1000,
+  "liquidity_wait_seconds": 2,
+  "allow_missing_liquidity": true,
+  "check_rugcheck": true,
+  "max_rugcheck_score": 2500,
+  "rugcheck_fail_open": true,
+  "max_concurrent_checks": 32,
+  "notes": "Setarile implicite recomandate. Token-urile pump.fun proaspete nu au lichiditate raportata de DexScreener (sunt pe bonding curve), deci asteptarea acolo e scurta; bugetul de timp merge in a doua opinie RugCheck, care da semnal real (scor, concentrare de detinatori, istoric de rug al creatorului).",
+  "rpc_min_interval": 0.5,
+  "liquidity_poll_interval": 2,
+  "rugcheck_wait_seconds": 8,
+  "rugcheck_poll_interval": 3,
+  "telegram_notify": false
+}
