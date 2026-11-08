@@ -30,7 +30,7 @@ export default function App() {
     () => !(typeof window !== 'undefined' && window.matchMedia?.(MOBILE_QUERY).matches),
   )
   // `now` avanseaza o data pe secunda: marcam randurile proaspete si uptime-ul.
-  const [now, setNow] = useState(Date.now())
+  const [now, setNow] = useState(() => Date.now())
 
   useEffect(() => {
     const t = setInterval(() => setNow(Date.now()), 1000)
