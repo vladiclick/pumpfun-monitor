@@ -18,7 +18,7 @@ const FILTERS = [
 ]
 
 export default function App() {
-  const { status, events, instances, server, stats, action, refreshInstances, refreshStats } =
+  const { status, events, instances, stats, action, refreshInstances, refreshStats } =
     useBackend()
 
   const [filter, setFilter] = useState('verdicts')
@@ -99,7 +99,6 @@ export default function App() {
     <div className={`app${sidebarOpen ? '' : ' sidebar-collapsed'}`}>
       <TopBar
         status={status}
-        server={server}
         sidebarOpen={sidebarOpen}
         onToggleSidebar={() => setSidebarOpen((v) => !v)}
         instanceCount={instances.length}

@@ -11,7 +11,7 @@ const STATUS_DOT = {
   unauthorized: 'off',
 }
 
-export default function TopBar({ status, server, sidebarOpen, onToggleSidebar, instanceCount }) {
+export default function TopBar({ status, sidebarOpen, onToggleSidebar, instanceCount }) {
   return (
     <header className="topbar">
       <div className="brand">
