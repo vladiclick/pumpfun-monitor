@@ -82,6 +82,8 @@ export function useBackend() {
       // URL invalid sau browser care blocheaza ws:// din pagina https://
       console.error('[ws] nu pot deschide conexiunea', err)
       setStatus('offline')
+      // connect reschedules itself; it is defined by the time the timer fires.
+      // eslint-disable-next-line react-hooks/immutability
       timerRef.current = setTimeout(connect, retryRef.current)
       retryRef.current = Math.min(retryRef.current * 2, BACKOFF_MAX)
       return
